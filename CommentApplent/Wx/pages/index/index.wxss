@@ -1,0 +1,43 @@
+.allProject-body{
+  width: 100%;
+  /* display: flex;
+  flex-direction: column; */
+}
+.title{
+  font-size: 15px;
+  color: #fff;
+  justify-content: center;
+  text-align: center;
+  padding: 5px 0;
+  background-color: rgb(169, 106, 231);
+}
+.allProject-body .projectItem{
+  width: 46.5%;
+  height: 200px;
+  margin:10px .8% 10px 2%;
+  background-color: #fff;
+  border-radius: 5px;
+  box-shadow:0px 4px 4px 4px rgb(238, 235, 235);
+  float: left;
+}
+.allProject-body .projectItem  image{
+  width: 100%;
+  height: 160px;
+  flex-grow: 0;
+  flex-shrink: 0;
+  border-radius: 5px;
+}
+
+.allProject-body .projectItem .content{
+  width:100%;
+  text-align: center;
+  line-height: 30px
+}
+.allProject-body .projectItem .content .name{
+  font-size: 15px;
+}
+.allProject-body .projectItem .content .message{
+  font-size: 13px;
+  color: gray;
+  margin-top: 5px;
+}

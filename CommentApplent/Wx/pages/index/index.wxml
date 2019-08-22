@@ -1,0 +1,14 @@
+<!-- wxml -->
+<view class='title'>所有员工</view>
+<view class='allProject-body'>
+    
+    <block wx:for="{{allEmployees}}" wx:key="*this">
+      <view class='projectItem' bindtap='bindtap' data-select="{{item.id}}">
+        <image src='{{url}}/{{item.header_image}}'></image>
+        <view class='content'>
+          <view class='name'>{{item.name}}</view>
+          <view class='message'>{{item.message}}</view>
+        </view>
+      </view>
+    </block>
+  </view>

@@ -1,0 +1,28 @@
+<view class='assess-pages'>
+  <view class='wrapper-item'>
+    
+    <view class='main-info'>
+      <image src='{{url}}/{{employee.header_image}}'></image>
+      <view class='info-header'>
+        <view class='name-desc'>
+          <view class='info-name'>{{employee.name}}</view>        
+        </view>
+      </view>
+
+    </view>
+  </view>
+  <view class='assess-body'>
+    <view class='assess-title'>您对本次的服务满意吗？</view>
+    <view class='assess-star'>
+      <view class='star-wrap'>
+        <view class='star-item' wx:for="{{stars}}" wx:key="" style='background:url("{{item.flag==1?item.lightImg:item.blackImg}}") no-repeat top;background-size:100%;' data-index="{{index}}" bindtap='starClick' />
+      </view>
+      <view class='star-desc'>{{starDesc}}</view>
+    </view>
+    <view class='assess-list'>
+      <view class="item-assess {{index == assessSelect ?'is_checked':''}}" wx:for="{{assessLists}}" wx:key="" bindtap="assessSelection" data-select="{{index}}">{{item}}</view>
+    </view>
+    <textarea maxlength="200" placeholder='回复' placeholder-class='place-assess' bindinput='contentInput' />
+  </view>
+  <button class='assess-submint' open-type="getUserInfo" bindgetuserinfo="submit">提交评价</button>
+</view>
