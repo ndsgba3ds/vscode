@@ -32,7 +32,7 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
-    #'simpleui',
+    'simpleui',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -119,7 +119,8 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
-STATIC_ROOT = '/opt/nginx/static/'
+# STATIC_ROOT = '/opt/nginx/static/'
+STATIC_ROOT = '/home/web/demo/static/'
 STATIC_URL = '/static/'
 STATICFILES_DIR = [
     os.path.join(BASE_DIR,'static'),
