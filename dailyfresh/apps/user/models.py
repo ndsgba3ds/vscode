@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auto.models import AbstractUser
+from django.contrib.auth.models import AbstractUser
 from db.base_model import BaseModel
 
 # Create your models heer.
@@ -17,7 +17,7 @@ class User(AbstractUser, BaseModel):
 class Address(BaseModel):
     # 地址模型类
 
-    User = models.ForeignKey(
+    user = models.ForeignKey(
         'User', on_delete=models.CASCADE, verbose_name='所属用户')
     receiver = models.CharField(max_length=20, verbose_name='收件人')
     addr = models.CharField(max_length=256, verbose_name='收件地址')

@@ -133,3 +133,13 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATICFILES_DIR = [os.path.join(BASE_DIR, 'static')]
+
+# django认证系统使用的模型类
+AUTH_USER_MODEL = 'user.User'
+
+# 设置django文件的存款类
+DEFAULT_FILE_STORAGE = 'utils.fdfs.storage.FDFSStorage'
+# 设置fdfs使用的client.conf的文件路径
+FDFS_CLIENT_CONF = './utils/fdfs/client.conf'
+# 设置fdfs文件存储服务器url或者ip端口号
+FDFS_URL = 'http://img.61webstore.com/'
