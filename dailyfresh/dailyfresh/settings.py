@@ -144,3 +144,13 @@ DEFAULT_FILE_STORAGE = 'utils.fdfs.storage.FDFSStorage'
 FDFS_CLIENT_CONF = './utils/fdfs/client.conf'
 # 设置fdfs文件存储服务器url或者ip端口号
 FDFS_URL = 'http://img.61webstore.com/'
+
+# 发送邮件设置
+EMAIL_HOST = 'smtp.126.com'
+EMAIL_PORT = 25
+EMAIL_HOST_USER = 'ndsgbaqq@126.com'
+EMAIL_HOST_PASSWORD = '136630078'
+EMAIL_FROM = '天天生鲜<ndsgbaqq@126.com>'
+
+# celery中间人 redis://redis服务所在的ip地址:端口/数据库号
+BROKER_URL = 'redis://39.107.116.79:6379/2'
