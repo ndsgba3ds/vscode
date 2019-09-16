@@ -152,5 +152,20 @@ EMAIL_HOST_USER = 'ndsgbaqq@126.com'
 EMAIL_HOST_PASSWORD = '136630078'
 EMAIL_FROM = '天天生鲜<ndsgbaqq@126.com>'
 
-# celery中间人 redis://redis服务所在的ip地址:端口/数据库号
-BROKER_URL = 'redis://39.107.116.79:6379/2'
+
+# Django的缓存配置
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://:cui123@39.107.116.79:6379/3",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
+
+# 配置session存储
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+SESSION_CACHE_ALIAS = "default"
+
+LOGIN_URL = '/user/login'

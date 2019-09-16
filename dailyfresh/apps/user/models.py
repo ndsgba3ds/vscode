@@ -10,8 +10,17 @@ class User(AbstractUser, BaseModel):
 
     class Meta:
         db_table = 'df_user'
-        verbose_name = '用户'
-        verbose_name_plural = '用户'
+        verbose_name = '会员'
+        verbose_name_plural = '会员'
+
+
+class AddressManager(models.Manager):
+    def get_default_address(self, user):
+        try:
+            address = self.get(user=user, is_default=True)
+        except self.model.DoesNotExist:
+            address = None
+        return address
 
 
 class Address(BaseModel):
@@ -24,6 +33,8 @@ class Address(BaseModel):
     zip_code = models.CharField(max_length=6, verbose_name='邮政编号')
     phone = models.CharField(max_length=11, verbose_name='联系电话')
     is_default = models.BooleanField(default=False, verbose_name='是否默认')
+
+    objects = AddressManager()
 
     class Meta:
         db_table = 'db_address'

@@ -4,11 +4,14 @@ from django.conf import settings
 from user.models import User, Address
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from itsdangerous import SignatureExpired
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.core.mail import send_mail
 from celery_tasks.tasks import send_register_active_mail
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import login, authenticate, logout
+from utils.mixin import LoginRequiredMixin
 # Create your views here.
+
+# /user/register
 
 
 class RegisterView(View):
@@ -45,12 +48,14 @@ class RegisterView(View):
         info = {'confirm': user.id}
         token = serializer.dumps(info)
         token = token.decode()
-        html_message = '欢迎%s,请点击<a href ="http://127.0.0.1:8000/user/activate/%s">http://127.0.0.1:8000/user/activate/%s</a>激活' % (
-            username, token, token)
-        send_mail('激活邮件', '', settings.EMAIL_FROM, [
-            email], html_message=html_message)
-        #send_register_active_mail.delay(email, username, token)
+        # html_message = '欢迎%s,请点击<a href ="http://127.0.0.1:8000/user/activate/%s">http://127.0.0.1:8000/user/activate/%s</a>激活' % (
+        #     username, token, token)
+        # send_mail('激活邮件', '', settings.EMAIL_FROM, [
+        #     email], html_message=html_message)
+        send_register_active_mail.delay(email, username, token)
         return redirect('/')
+
+# /user/aitive
 
 
 class ActiveView(View):
@@ -65,6 +70,8 @@ class ActiveView(View):
             return redirect('/user/login')
         except SignatureExpired as e:
             return HttpResponse('激活失败')
+
+# /user/login
 
 
 class LoginView(View):
@@ -81,8 +88,64 @@ class LoginView(View):
         if user is not None:
             if user.is_active:
                 login(request, user)
-                redirect('/')
+                next_url = request.GET.get('next', '/')
+                response = redirect(next_url)
+                if remember == 'on':
+                    response.set_cookie(
+                        'username', username, max_age=7*24*3600)
+                else:
+                    response.delete_cookie('username')
+                return redirect(next_url)
             else:
                 return render(request, 'login.html', {'error': '未激活'})
         else:
             return render(request, 'login.html', {'error': '用户不存在'})
+
+# /user/logout
+
+
+class LogoutView(View):
+    def get(self, request):
+        logout(request)
+        return redirect('/')
+
+
+# /user
+
+
+class UserInfoView(LoginRequiredMixin, View):
+    def get(self, request):
+        return render(request, 'user_center_info.html')
+# /userorder
+
+
+class UserOrderView(LoginRequiredMixin, View):
+    def get(self, request):
+        return render(request, 'user_center_order.html')
+# /user/address
+
+
+class AddressView(LoginRequiredMixin, View):
+    def get(self, request):
+        user = request.user
+        address = Address.objects.get_default_address(user)
+        return render(request, 'user_center_site.html', {'address': address})
+
+    def post(self, request):
+        user = request.user
+        receiver = request.POST.get('receiver')
+        addr = request.POST.get('addr')
+        zip_code = request.POST.get('zip_code')
+        phone = request.POST.get('phone')
+
+        if not all([receiver, addr, zip_code, phone]):
+            return render(request, 'user_center_site.html', {'error': '数据不完整'})
+
+        address = Address.objects.get_default_address(user)
+        if address:
+            is_default = False
+        else:
+            is_default = True
+        Address.objects.create(user=user, receiver=receiver, addr=addr,
+                               zip_code=zip_code, phone=phone, is_default=is_default)
+        return redirect('/user/address')
