@@ -13,7 +13,7 @@ class GoodsType(BaseModel):
 
     class Meta:
         db_table = 'df_goods_type'
-        verbose_name = '商品种类'
+        verbose_name = '分类'
         verbose_name_plural = verbose_name
 
     def __str__(self):
@@ -26,8 +26,10 @@ class GoodsSKU(BaseModel):
         (0, '下线'),
         (1, '上线'),
     )
-    type = models.ForeignKey('GoodsType', verbose_name='商品种类', on_delete=models.CASCADE)
-    goods = models.ForeignKey('Goods', verbose_name='商品SPU', on_delete=models.CASCADE)
+    type = models.ForeignKey(
+        'GoodsType', verbose_name='分类', on_delete=models.CASCADE)
+    goods = models.ForeignKey(
+        'Goods', verbose_name='商品SPU', on_delete=models.CASCADE)
     name = models.CharField(max_length=20, verbose_name='商品名称')
     desc = models.CharField(max_length=256, verbose_name='商品简介')
     price = models.DecimalField(
@@ -44,6 +46,9 @@ class GoodsSKU(BaseModel):
         verbose_name = '商品'
         verbose_name_plural = verbose_name
 
+    def __str__(self):
+        return self.name
+
 
 class Goods(BaseModel):
     '''商品SPU模型类'''
@@ -55,11 +60,15 @@ class Goods(BaseModel):
         db_table = 'df_goods'
         verbose_name = '商品SPU'
         verbose_name_plural = verbose_name
+    
+    def __str__(self):
+        return self.name
 
 
 class GoodsImage(BaseModel):
     '''商品图片模型类'''
-    sku = models.ForeignKey('GoodsSKU', verbose_name='商品', on_delete=models.CASCADE)
+    sku = models.ForeignKey(
+        'GoodsSKU', verbose_name='商品', on_delete=models.CASCADE)
     image = models.ImageField(upload_to='goods', verbose_name='图片路径')
 
     class Meta:
@@ -67,17 +76,24 @@ class GoodsImage(BaseModel):
         verbose_name = '商品图片'
         verbose_name_plural = verbose_name
 
+    def __str__(self):
+        return self.sku.name
+
 
 class IndexGoodsBanner(BaseModel):
     '''首页轮播商品展示模型类'''
-    sku = models.ForeignKey('GoodsSKU', verbose_name='商品', on_delete=models.CASCADE)
+    sku = models.ForeignKey(
+        'GoodsSKU', verbose_name='商品', on_delete=models.CASCADE)
     image = models.ImageField(upload_to='banner', verbose_name='图片')
     index = models.SmallIntegerField(default=0, verbose_name='展示顺序')
 
     class Meta:
         db_table = 'df_index_banner'
-        verbose_name = '首页轮播商品'
+        verbose_name = '轮播广告'
         verbose_name_plural = verbose_name
+    
+    def __str__(self):
+        return self.sku.name
 
 
 class IndexTypeGoodsBanner(BaseModel):
@@ -87,16 +103,21 @@ class IndexTypeGoodsBanner(BaseModel):
         (1, "图片")
     )
 
-    type = models.ForeignKey('GoodsType', verbose_name='商品类型', on_delete=models.CASCADE)
-    sku = models.ForeignKey('GoodsSKU', verbose_name='商品SKU', on_delete=models.CASCADE)
+    type = models.ForeignKey(
+        'GoodsType', verbose_name='商品类型', on_delete=models.CASCADE)
+    sku = models.ForeignKey(
+        'GoodsSKU', verbose_name='商品SKU', on_delete=models.CASCADE)
     display_type = models.SmallIntegerField(
         default=1, choices=DISPLAY_TYPE_CHOICES, verbose_name='展示类型')
     index = models.SmallIntegerField(default=0, verbose_name='展示顺序')
 
     class Meta:
         db_table = 'df_index_type_goods'
-        verbose_name = "主页分类展示商品"
+        verbose_name = "分类展示商品"
         verbose_name_plural = verbose_name
+    
+    def __str__(self):
+        return self.sku.name
 
 
 class IndexPromotionBanner(BaseModel):
@@ -108,5 +129,8 @@ class IndexPromotionBanner(BaseModel):
 
     class Meta:
         db_table = 'df_index_promotion'
-        verbose_name = "主页促销活动"
+        verbose_name = "促销活动"
         verbose_name_plural = "主页促销活动"
+    
+    def __str__(self):
+        return self.name

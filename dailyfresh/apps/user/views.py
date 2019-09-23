@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.views import View
 from django.conf import settings
 from user.models import User, Address
+from goods.models import GoodsSKU
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from itsdangerous import SignatureExpired
 from django.http import HttpResponse, JsonResponse
@@ -9,6 +10,7 @@ from django.core.mail import send_mail
 from celery_tasks.tasks import send_register_active_mail
 from django.contrib.auth import login, authenticate, logout
 from utils.mixin import LoginRequiredMixin
+from django_redis import get_redis_connection
 # Create your views here.
 
 # /user/register
@@ -115,7 +117,22 @@ class LogoutView(View):
 
 class UserInfoView(LoginRequiredMixin, View):
     def get(self, request):
-        return render(request, 'user_center_info.html')
+        user = request.user
+        address = Address.objects.get_default_address(user)
+        conn = get_redis_connection('default')
+        history_key = 'history_%d' % user.id
+
+        # 获取用户最新浏览的5个商品的id
+        sku_ids = conn.lrange(history_key, 0, 4)
+        goods_list = []
+        for id in sku_ids:
+            try:
+                goods = GoodsSKU.objects.get(id=id)
+            except GoodsSKU.DoesNotExist:
+                pass
+            goods_list.append(goods)
+
+        return render(request, 'user_center_info.html', {'address': address, 'goods_list': goods_list})
 # /userorder
 
 
