@@ -1,0 +1,4 @@
+# 指定搜索字段
+{{ object.name }}
+{{ object.desc }}
+{{ object.goods.detail }}

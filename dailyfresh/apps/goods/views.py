@@ -101,9 +101,15 @@ class ListView(View):
         if page > paginator.count:
             page = 1
         skus_page = paginator.get_page(page)
-
-        
-
+        num_pages = skus_page.num_pages
+        if num_pages < 5:
+            pages = range(1, num_pages+1)
+        elif page <= 3:
+            pages = range(1, 6)
+        elif num_pages - page <= 2:
+            pages = range(num_pages-4, num_pages+1)
+        else:
+            pages = range(page-2, page+3)
 
         new_goods = GoodsSKU.objects.filter(
             type=type).order_by('create_time')[:2]
@@ -115,5 +121,5 @@ class ListView(View):
             cart_key = 'cart_%d' % user.id
             cart_count = conn.hlen(cart_key)
         context = {'type': type, 'types': types, 'skus_page': skus_page,
-                   'new_goods': new_goods, 'cart_count': cart_count, 'sort': sort}
+                   'new_goods': new_goods, 'cart_count': cart_count, 'sort': sort, 'pages': pages}
         return render(request, 'list.html', context)
