@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from django.views.generic import View
 from django.http import JsonResponse
 from goods.models import GoodsSKU
@@ -65,4 +65,61 @@ class CartInfoView(LoginRequiredMixin, View):
         # 组织上下文
         context = {'total_count': total_count,
                    'total_price': total_price, 'skus': skus}
-        return render(request, 'cart.html',context)
+        return render(request, 'cart.html', context)
+
+
+class CartUpdateView(View):
+    def post(self, request):
+        sku_id = request.POST.get('sku_id')
+        count = request.POST.get('count')
+        user = request.user
+        if not user.is_authenticated:
+            return JsonResponse({'res': 4, 'error': '请登录'})
+
+        if not all([sku_id, count]):
+            return JsonResponse({'res': 0, 'error': '数据不完整'})
+
+        try:
+            count = int(count)
+        except Exception as e:
+            return JsonResponse({'res': 1, 'error': '商品数量出错'})
+
+        try:
+            sku = GoodsSKU.objects.get(id=sku_id)
+        except GoodsSKU.DoesNotExist:
+            return JsonResponse({'res': 2, 'error': '商品不存在'})
+
+        if count > sku.stock:
+            return JsonResponse({'res': 6, 'error': '商品库存不足'})
+        conn = get_redis_connection('default')
+        cart_key = 'cart_%d' % user.id
+        conn.hset(cart_key, sku_id, count)
+        total_count = 0
+        vals = conn.hvals(cart_key)
+        for val in vals:
+            total_count += int(val)
+
+        return JsonResponse({'res': 5, 'message': '更新成功', 'total_count': total_count})
+
+
+class CartDeleteView(View):
+    def post(self, request):
+        sku_id = request.POST.get('sku_id')
+        user = request.user
+        if not user.is_authenticated:
+            return JsonResponse({'res': 4, 'error': '请登录'})
+        if not sku_id:
+            return JsonResponse({'res': 0, 'error': '数据不完整'})
+        try:
+            sku = GoodsSKU.objects.get(id=sku_id)
+        except GoodsSKU.DoesNotExist:
+            return JsonResponse({'res': 2, 'error': '商品不存在'})
+        conn = get_redis_connection('default')
+        cart_key = 'cart_%d' % user.id
+        conn.hdel(cart_key, sku_id)
+        total_count = 0
+        vals = conn.hvals(cart_key)
+        for val in vals:
+            total_count += int(val)
+
+        return JsonResponse({'res': 3, 'message': '删除成功', 'total_count': total_count})

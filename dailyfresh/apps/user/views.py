@@ -11,6 +11,8 @@ from celery_tasks.tasks import send_register_active_mail
 from django.contrib.auth import login, authenticate, logout
 from utils.mixin import LoginRequiredMixin
 from django_redis import get_redis_connection
+from order.models import OrderInfo, OrderGoods
+from django.core.paginator import Paginator
 # Create your views here.
 
 # /user/register
@@ -137,8 +139,37 @@ class UserInfoView(LoginRequiredMixin, View):
 
 
 class UserOrderView(LoginRequiredMixin, View):
-    def get(self, request):
-        return render(request, 'user_center_order.html')
+    def get(self, request, page):
+        user = request.user
+        order_list = OrderInfo.objects.filter(
+            user=user).order_by('-create_time')
+        for order in order_list:
+            order_skus = OrderGoods.objects.filter(order=order)
+            for sku in order_skus:
+                amount = sku.price*sku.count
+                sku.amount = amount
+            order.order_skus = order_skus
+            order.status_name = OrderInfo.ORDER_STATUS[order.order_status]
+        # 分页
+        paginator = Paginator(order_list, 1)
+        try:
+            page = int(page)
+        except Exception as e:
+            page = 1
+        if page > paginator.count:
+            page = 1
+        orders_page = paginator.get_page(page)
+        num_pages = paginator.num_pages
+        if num_pages < 5:
+            pages = range(1, num_pages+1)
+        elif page <= 3:
+            pages = range(1, 6)
+        elif num_pages - page <= 2:
+            pages = range(num_pages-4, num_pages+1)
+        else:
+            pages = range(page-2, page+3)
+        context = {'orders_page': orders_page, 'pages': pages, 'page': 'order'}
+        return render(request, 'user_center_order.html', context)
 # /user/address
 
 

@@ -8,6 +8,6 @@ urlpatterns = [
     path('login', LoginView.as_view(), name='login'),  # 登录
     path('logout', LogoutView.as_view(), name='logout'),
     path('', UserInfoView.as_view(), name='center'),
-    path('order', UserOrderView.as_view(), name='order'),
+    path('order/<int:page>/', UserOrderView.as_view(), name='order'),
     path('address', AddressView.as_view(), name='address')
 ]
